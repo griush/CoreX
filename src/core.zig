@@ -125,6 +125,7 @@ pub fn setWindowTitle(comptime fmt: []const u8, args: anytype) void {
         std.log.err("setWindowTitle: {s}", .{@errorName(err)});
         return;
     };
+    defer allocator.free(title);
     window.setTitle(title);
 }
 

@@ -10,6 +10,7 @@ pub const colors = struct {
     pub const green = Vec4{ .x = 0.0, .y = 1.0, .z = 0.0, .w = 1.0 };
     pub const blue = Vec4{ .x = 0.0, .y = 0.0, .z = 1.0, .w = 1.0 };
 
+    pub const yellow = Vec4{ .x = 1.0, .y = 1.0, .z = 0.0, .w = 1.0 };
     pub const cyan = Vec4{ .x = 0.0, .y = 1.0, .z = 1.0, .w = 1.0 };
 };
 
@@ -31,6 +32,8 @@ pub const Key = core.Key;
 pub const isKeyPressed = core.isKeyPressed;
 
 // Renderer
+pub const Quad = renderer.Quad;
+
 pub const beginDraw = renderer.beginDraw;
 pub const endDraw = renderer.endDraw;
 

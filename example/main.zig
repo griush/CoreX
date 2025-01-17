@@ -10,6 +10,7 @@ pub fn main() !void {
     defer cx.deinit();
 
     var x: f32 = 0.0;
+    var y: f32 = 0.0;
     while (!cx.windowShouldClose()) {
         cx.update();
 
@@ -25,11 +26,17 @@ pub fn main() !void {
         if (cx.isKeyPressed(.right)) {
             x += 10.0 * cx.deltaTimef(); // 10 m/s
         }
+        if (cx.isKeyPressed(.up)) {
+            y += 10.0 * cx.deltaTimef(); // 10 m/s
+        }
+        if (cx.isKeyPressed(.down)) {
+            y -= 10.0 * cx.deltaTimef(); // 10 m/s
+        }
 
         cx.beginDraw();
-        cx.drawQuad(.{ .x = 1.0, .y = 0.0 }, cx.colors.green);
-        cx.drawQuad(.{ .x = 1.0, .y = 1.0 }, cx.colors.cyan);
-        cx.drawQuad(.{ .x = x, .y = 0.0 }, cx.colors.red);
+        cx.drawQuad(.{ .position = .{ .x = 1.0, .y = 0.0 }, .color = cx.colors.white, .z_index = -5 });
+        cx.drawQuad(.{ .position = .{ .x = 1.0, .y = 1.0 }, .color = cx.colors.yellow, .z_index = 3 });
+        cx.drawQuad(.{ .position = .{ .x = x, .y = y }, .color = cx.colors.cyan, .z_index = 0 });
         cx.endDraw();
     }
 }

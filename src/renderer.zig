@@ -37,12 +37,53 @@ pub fn onResize(width: i32, height: i32) void {
     renderer_state.view_proj = .orthographic(-10.0 * aspect, 10.0 * aspect, -10.0, 10.0, -1.0, 1.0);
 }
 
+const renderer_state = struct {
+    var quad_vao: gl.uint = undefined;
+    var quad_vbo: gl.uint = undefined;
+    var quad_ibo: gl.uint = undefined;
+    var default_shader_program: gl.uint = undefined;
+
+    var view_proj: zm.Mat4f = .identity();
+
+    // draw queue
+    var draw_queue = std.ArrayList(Quad).init(core.allocator);
+};
+
+pub const Quad = struct {
+    position: core.Vec2 = .{ .x = 0, .y = 0 },
+    z_index: i32 = 0,
+    color: core.Vec4 = .{ .x = 1.0, .y = 1.0, .z = 1.0, .w = 1.0 },
+};
+
+fn quadLessThan(ctx: void, a: Quad, b: Quad) bool {
+    _ = ctx;
+    return a.z_index < b.z_index;
+}
+
 pub fn beginDraw() void {
+    renderer_state.draw_queue.clearRetainingCapacity();
+
     gl.ClearColor(0.1, 0.1, 0.1, 1.0);
     gl.Clear(gl.COLOR_BUFFER_BIT);
 }
 
-pub fn drawQuad(pos: core.Vec2, color: core.Vec4) void {
+pub fn endDraw() void {
+    // draw queue
+    std.sort.insertion(Quad, renderer_state.draw_queue.items, void{}, quadLessThan);
+    for (renderer_state.draw_queue.items) |quad| {
+        internalDrawQuad(quad);
+    }
+
+    core.window.swapBuffers();
+}
+
+pub fn drawQuad(q: Quad) void {
+    renderer_state.draw_queue.append(q) catch |err| {
+        std.log.err("drawQuad(): {s}", .{@errorName(err)});
+    };
+}
+
+fn internalDrawQuad(q: Quad) void {
     gl.UseProgram(renderer_state.default_shader_program);
     defer gl.UseProgram(0);
 
@@ -50,19 +91,15 @@ pub fn drawQuad(pos: core.Vec2, color: core.Vec4) void {
     gl.UniformMatrix4fv(gl.GetUniformLocation(renderer_state.default_shader_program, "u_ViewProj"), 1, gl.TRUE, @ptrCast(&(renderer_state.view_proj)));
 
     // transform
-    const transform = zm.Mat4f.translation(pos.x, pos.y, 0.0);
+    const transform = zm.Mat4f.translation(q.position.x, q.position.y, 0.0);
     gl.UniformMatrix4fv(gl.GetUniformLocation(renderer_state.default_shader_program, "u_Model"), 1, gl.TRUE, @ptrCast(&(transform)));
 
-    gl.Uniform4f(gl.GetUniformLocation(renderer_state.default_shader_program, "u_Color"), color.x, color.y, color.z, color.w);
+    gl.Uniform4f(gl.GetUniformLocation(renderer_state.default_shader_program, "u_Color"), q.color.x, q.color.y, q.color.z, q.color.w);
 
     gl.BindVertexArray(renderer_state.quad_vao);
     defer gl.BindVertexArray(0);
 
     gl.DrawElements(gl.TRIANGLES, quad_mesh.indices.len, gl.UNSIGNED_BYTE, 0);
-}
-
-pub fn endDraw() void {
-    core.window.swapBuffers();
 }
 
 const quad_mesh = struct {
@@ -79,15 +116,6 @@ const quad_mesh = struct {
         position: Position,
         const Position = [3]f32;
     };
-};
-
-const renderer_state = struct {
-    var quad_vao: gl.uint = undefined;
-    var quad_vbo: gl.uint = undefined;
-    var quad_ibo: gl.uint = undefined;
-    var default_shader_program: gl.uint = undefined;
-
-    var view_proj: zm.Mat4f = .identity();
 };
 
 fn getAspectRatio() f32 {
