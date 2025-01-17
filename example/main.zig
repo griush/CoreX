@@ -33,10 +33,11 @@ pub fn main() !void {
             y -= 10.0 * cx.deltaTimef(); // 10 m/s
         }
 
-        cx.beginDraw();
-        cx.drawQuad(.{ .position = .{ .x = 1.0, .y = 0.0 }, .color = cx.colors.white, .z_index = -5 });
-        cx.drawQuad(.{ .position = .{ .x = 1.0, .y = 1.0 }, .color = cx.colors.yellow, .z_index = 3 });
-        cx.drawQuad(.{ .position = .{ .x = x, .y = y }, .color = cx.colors.cyan, .z_index = 0 });
+        cx.beginDraw(cx.colors.black);
+        cx.drawQuad(.{ .position = .{ .x = 1.0, .y = 0.0 }, .color = cx.colors.gray });
+        cx.drawQuad(.{ .position = .{ .x = 1.0, .y = 1.0 }, .color = cx.colors.dark_gray });
+        cx.drawQuad(.{ .position = .{ .x = 1.0, .y = -1.0 }, .color = cx.colors.light_gray });
+        cx.drawQuad(.{ .position = .{ .x = x, .y = y }, .color = cx.colors.red, .z_index = 1 });
         cx.endDraw();
     }
 }

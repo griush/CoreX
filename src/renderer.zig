@@ -60,10 +60,10 @@ fn quadLessThan(ctx: void, a: Quad, b: Quad) bool {
     return a.z_index < b.z_index;
 }
 
-pub fn beginDraw() void {
+pub fn beginDraw(clear_color: core.Vec4) void {
     renderer_state.draw_queue.clearRetainingCapacity();
 
-    gl.ClearColor(0.1, 0.1, 0.1, 1.0);
+    gl.ClearColor(clear_color.x, clear_color.y, clear_color.z, 1.0);
     gl.Clear(gl.COLOR_BUFFER_BIT);
 }
 
