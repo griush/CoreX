@@ -31,6 +31,7 @@ pub const deltaTimef = core.deltaTimef;
 pub const windowShouldClose = core.windowShouldClose;
 pub const quit = core.quit;
 pub const setWindowTitle = core.setWindowTitle;
+pub const getTime = core.getTime;
 
 // Input
 pub const Key = core.Key;

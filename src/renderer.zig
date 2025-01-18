@@ -12,9 +12,30 @@ const fragment_shader_source: [:0]const u8 = @embedFile("shaders/default.glsl.fr
 const glfw_log = std.log.scoped(.glfw);
 const gl_log = std.log.scoped(.gl);
 
+fn glDebugCallback(source: c_uint, t: c_uint, id: c_uint, severity: c_uint, length: c_int, message: [*:0]const u8, user_param: ?*const anyopaque) callconv(.C) void {
+    _ = user_param; // autofix
+    _ = length; // autofix
+    _ = t; // autofix
+    _ = source; // autofix
+    switch (severity) {
+        gl.DEBUG_SEVERITY_HIGH => gl_log.err("({d}): {s}", .{ id, message }),
+        gl.DEBUG_SEVERITY_MEDIUM => gl_log.err("({d}): {s}", .{ id, message }),
+        gl.DEBUG_SEVERITY_LOW => gl_log.warn("({d}): {s}", .{ id, message }),
+        gl.DEBUG_SEVERITY_NOTIFICATION => gl_log.info("({d}): {s}", .{ id, message }),
+        else => unreachable,
+    }
+}
+
 pub fn init() !void {
+    if (@import("builtin").mode == .Debug) {
+        gl.Enable(gl.DEBUG_OUTPUT);
+        gl.Enable(gl.DEBUG_OUTPUT_SYNCHRONOUS);
+        gl.DebugMessageCallback(glDebugCallback, null);
+        gl.DebugMessageControl(gl.DONT_CARE, gl.DONT_CARE, gl.DEBUG_SEVERITY_NOTIFICATION, 0, 0, gl.FALSE);
+    }
+
     gl.Enable(gl.BLEND);
-    gl.BlendFunc(gl.BLEND_SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
+    gl.BlendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
 
     try createShaders();
     createQuad();
@@ -88,11 +109,11 @@ fn internalDrawQuad(q: Quad) void {
     defer gl.UseProgram(0);
 
     // camera
-    gl.UniformMatrix4fv(gl.GetUniformLocation(renderer_state.default_shader_program, "u_ViewProj"), 1, gl.TRUE, @ptrCast(&(renderer_state.view_proj)));
+    gl.UniformMatrix4fv(gl.GetUniformLocation(renderer_state.default_shader_program, "u_ViewProjection"), 1, gl.TRUE, @ptrCast(&(renderer_state.view_proj)));
 
     // transform
     const transform = zm.Mat4f.translation(q.position.x, q.position.y, 0.0);
-    gl.UniformMatrix4fv(gl.GetUniformLocation(renderer_state.default_shader_program, "u_Model"), 1, gl.TRUE, @ptrCast(&(transform)));
+    gl.UniformMatrix4fv(gl.GetUniformLocation(renderer_state.default_shader_program, "u_Transform"), 1, gl.TRUE, @ptrCast(&(transform)));
 
     gl.Uniform4f(gl.GetUniformLocation(renderer_state.default_shader_program, "u_Color"), q.color.x, q.color.y, q.color.z, q.color.w);
 
@@ -110,7 +131,7 @@ const quad_mesh = struct {
         .{ .position = .{ -0.5, 0.5, 0.0 } },
     };
 
-    const indices = [_]u8{ 0, 1, 2, 0, 2, 3 };
+    const indices = [_]u8{ 0, 1, 2, 2, 3, 0 };
 
     const Vertex = struct {
         position: Position,

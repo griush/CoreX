@@ -3,9 +3,9 @@ const cx = @import("corex");
 pub fn main() !void {
     try cx.init(.{
         .window_title = "CoreX Example",
-        .window_width = 1920,
-        .window_height = 1080,
-        .start_maximized = true,
+        .window_width = 1280,
+        .window_height = 720,
+        .start_maximized = false,
     });
     defer cx.deinit();
 

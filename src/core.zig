@@ -13,7 +13,7 @@ pub var window: glfw.Window = undefined;
 var procs: gl.ProcTable = undefined;
 
 // deltaTimer
-var dt_timer: std.time.Timer = undefined;
+var last_frame_time: f64 = 0.0;
 var delta_time: f64 = 0.0;
 
 const glfw_log = std.log.scoped(.glfw);
@@ -81,8 +81,6 @@ pub fn init(options: InitOptions) !void {
     if (options.start_maximized) {
         window.maximize();
     }
-
-    dt_timer = try std.time.Timer.start();
 }
 
 pub fn deinit() void {
@@ -96,8 +94,9 @@ pub fn deinit() void {
 
 /// Should be the first thing called on each frame
 pub fn update() void {
-    const t = dt_timer.lap();
-    delta_time = @as(f64, @floatFromInt(t)) / @as(f64, @floatFromInt(std.time.ns_per_s));
+    const dt = glfw.getTime() - last_frame_time;
+    delta_time = dt;
+    last_frame_time = glfw.getTime();
 
     glfw.pollEvents();
 }
@@ -118,6 +117,11 @@ pub fn windowShouldClose() bool {
 
 pub fn quit() void {
     window.setShouldClose(true);
+}
+
+/// Returns time in seconds since the start of the appliaction
+pub fn getTime() f64 {
+    return glfw.getTime();
 }
 
 pub fn setWindowTitle(comptime fmt: []const u8, args: anytype) void {
