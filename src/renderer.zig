@@ -125,17 +125,20 @@ fn internalDrawQuad(q: Quad) void {
 
 const quad_mesh = struct {
     const vertices = [_]Vertex{
-        .{ .position = .{ -0.5, -0.5, 0.0 } },
-        .{ .position = .{ 0.5, -0.5, 0.0 } },
-        .{ .position = .{ 0.5, 0.5, 0.0 } },
-        .{ .position = .{ -0.5, 0.5, 0.0 } },
+        .{ .position = .{ -0.5, -0.5, 0.0 }, .uv = .{ 0.0, 0.0 } },
+        .{ .position = .{ 0.5, -0.5, 0.0 }, .uv = .{ 1.0, 0.0 } },
+        .{ .position = .{ 0.5, 0.5, 0.0 }, .uv = .{ 1.0, 1.0 } },
+        .{ .position = .{ -0.5, 0.5, 0.0 }, .uv = .{ 0.0, 1.0 } },
     };
 
     const indices = [_]u8{ 0, 1, 2, 2, 3, 0 };
 
     const Vertex = struct {
         position: Position,
+        uv: UV,
+
         const Position = [3]f32;
+        const UV = [2]f32;
     };
 };
 
@@ -236,6 +239,17 @@ fn createQuad() void {
                 gl.FALSE,
                 @sizeOf(quad_mesh.Vertex),
                 @offsetOf(quad_mesh.Vertex, "position"),
+            );
+
+            const uv_attrib: c_uint = @intCast(gl.GetAttribLocation(renderer_state.default_shader_program, "a_TexCoord"));
+            gl.EnableVertexAttribArray(uv_attrib);
+            gl.VertexAttribPointer(
+                uv_attrib,
+                @typeInfo(quad_mesh.Vertex.UV).array.len,
+                gl.FLOAT,
+                gl.FALSE,
+                @sizeOf(quad_mesh.Vertex),
+                @offsetOf(quad_mesh.Vertex, "uv"),
             );
         }
 
