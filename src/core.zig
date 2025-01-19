@@ -127,13 +127,21 @@ pub fn getTime() f64 {
     return glfw.getTime();
 }
 
+var last_title_update_time: f64 = 0.0;
 pub fn setWindowTitle(comptime fmt: []const u8, args: anytype) void {
+    const now = glfw.getTime();
+    if (now - last_title_update_time < 0.5) {
+        return;
+    }
+
     const title = std.fmt.allocPrintZ(allocator, fmt, args) catch |err| {
         std.log.err("setWindowTitle: {s}", .{@errorName(err)});
         return;
     };
     defer allocator.free(title);
+
     window.setTitle(title);
+    last_title_update_time = glfw.getTime();
 }
 
 ///////////////
