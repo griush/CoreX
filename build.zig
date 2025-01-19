@@ -31,6 +31,13 @@ pub fn build(b: *std.Build) void {
     const zm = b.dependency("zm", .{});
     corex_mod.addImport("zm", zm.module("zm"));
 
+    // dep: zigimg
+    const zigimg_dependency = b.dependency("zigimg", .{
+        .target = target,
+        .optimize = optimize,
+    });
+    corex_mod.addImport("zigimg", zigimg_dependency.module("zigimg"));
+
     // example
     const example_mod = b.createModule(.{
         .root_source_file = b.path("example/main.zig"),

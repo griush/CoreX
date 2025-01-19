@@ -5,8 +5,7 @@ const glfw = @import("glfw");
 
 const renderer = @import("renderer.zig");
 
-// TODO: some better memory management
-pub const allocator = std.heap.page_allocator;
+pub var allocator: std.mem.Allocator = undefined;
 
 // TODO: find better place for these (global state)
 pub var window: glfw.Window = undefined;
@@ -42,6 +41,8 @@ pub const Vec4 = struct {
 };
 
 pub const InitOptions = struct {
+    allocator: std.mem.Allocator,
+
     window_width: u32 = 1280,
     window_height: u32 = 720,
     window_title: [*:0]const u8 = "CoreX App",
@@ -56,6 +57,8 @@ pub fn init(options: InitOptions) !void {
     if (@import("builtin").mode == .Debug) {
         glfw.setErrorCallback(logGLFWError);
     }
+
+    allocator = options.allocator;
 
     if (!glfw.init(.{})) {
         return error.GLFWerror;

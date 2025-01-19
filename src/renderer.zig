@@ -2,9 +2,12 @@ const std = @import("std");
 
 const gl = @import("gl");
 const glfw = @import("glfw");
+const zigimg = @import("zigimg");
 const zm = @import("zm");
 
 const core = @import("core.zig");
+
+pub const Texture = @import("renderer/Texture.zig");
 
 const vertex_shader_source: [:0]const u8 = @embedFile("shaders/default.glsl.vert");
 const fragment_shader_source: [:0]const u8 = @embedFile("shaders/default.glsl.frag");
@@ -12,19 +15,9 @@ const fragment_shader_source: [:0]const u8 = @embedFile("shaders/default.glsl.fr
 const glfw_log = std.log.scoped(.glfw);
 const gl_log = std.log.scoped(.gl);
 
-fn glDebugCallback(source: c_uint, t: c_uint, id: c_uint, severity: c_uint, length: c_int, message: [*:0]const u8, user_param: ?*const anyopaque) callconv(.C) void {
-    _ = user_param; // autofix
-    _ = length; // autofix
-    _ = t; // autofix
-    _ = source; // autofix
-    switch (severity) {
-        gl.DEBUG_SEVERITY_HIGH => gl_log.err("({d}): {s}", .{ id, message }),
-        gl.DEBUG_SEVERITY_MEDIUM => gl_log.err("({d}): {s}", .{ id, message }),
-        gl.DEBUG_SEVERITY_LOW => gl_log.warn("({d}): {s}", .{ id, message }),
-        gl.DEBUG_SEVERITY_NOTIFICATION => gl_log.info("({d}): {s}", .{ id, message }),
-        else => unreachable,
-    }
-}
+////////////////
+//// Public ////
+////////////////
 
 pub fn init() !void {
     if (@import("builtin").mode == .Debug) {
@@ -37,14 +30,25 @@ pub fn init() !void {
     gl.Enable(gl.BLEND);
     gl.BlendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
 
+    renderer_state.draw_queue = std.ArrayList(Quad).init(core.allocator);
+
     try createShaders();
     createQuad();
 
+    var white_texture_data = [1]u32{0xffffffff};
+    renderer_state.white_texture = Texture.initRaw(.{
+        .data = &white_texture_data,
+        .width = 1,
+        .height = 1,
+    });
+
     const aspect = getAspectRatio();
-    renderer_state.view_proj = .orthographic(-10.0 * aspect, 10.0 * aspect, -10.0, 10.0, -1.0, 1.0);
+    renderer_state.view_proj = .orthographic(-5.0 * aspect, 5.0 * aspect, -5.0, 5.0, -1.0, 1.0);
 }
 
 pub fn deinit() void {
+    renderer_state.white_texture.deinit();
+
     gl.DeleteVertexArrays(1, (&renderer_state.quad_vao)[0..1]);
     gl.DeleteBuffers(1, (&renderer_state.quad_vbo)[0..1]);
     gl.DeleteBuffers(1, (&renderer_state.quad_ibo)[0..1]);
@@ -55,24 +59,14 @@ pub fn onResize(width: i32, height: i32) void {
     gl.Viewport(0, 0, @intCast(width), @intCast(height));
 
     const aspect = getAspectRatio();
-    renderer_state.view_proj = .orthographic(-10.0 * aspect, 10.0 * aspect, -10.0, 10.0, -1.0, 1.0);
+    renderer_state.view_proj = .orthographic(-5.0 * aspect, 5.0 * aspect, -5.0, 5.0, -1.0, 1.0);
 }
-
-const renderer_state = struct {
-    var quad_vao: gl.uint = undefined;
-    var quad_vbo: gl.uint = undefined;
-    var quad_ibo: gl.uint = undefined;
-    var default_shader_program: gl.uint = undefined;
-
-    var view_proj: zm.Mat4f = .identity();
-
-    // draw queue
-    var draw_queue = std.ArrayList(Quad).init(core.allocator);
-};
 
 pub const Quad = struct {
     position: core.Vec2 = .{ .x = 0, .y = 0 },
     z_index: i32 = 0,
+
+    texture: ?Texture = null,
     color: core.Vec4 = .{ .x = 1.0, .y = 1.0, .z = 1.0, .w = 1.0 },
 };
 
@@ -104,6 +98,37 @@ pub fn drawQuad(q: Quad) void {
     };
 }
 
+/////////////////
+//// Private ////
+/////////////////
+const renderer_state = struct {
+    var quad_vao: gl.uint = undefined;
+    var quad_vbo: gl.uint = undefined;
+    var quad_ibo: gl.uint = undefined;
+    var default_shader_program: gl.uint = undefined;
+
+    var white_texture: Texture = undefined;
+
+    var view_proj: zm.Mat4f = .identity();
+
+    // draw queue
+    var draw_queue: std.ArrayList(Quad) = undefined;
+};
+
+fn glDebugCallback(source: c_uint, t: c_uint, id: c_uint, severity: c_uint, length: c_int, message: [*:0]const u8, user_param: ?*const anyopaque) callconv(.C) void {
+    _ = user_param;
+    _ = length;
+    _ = t;
+    _ = source;
+    switch (severity) {
+        gl.DEBUG_SEVERITY_HIGH => gl_log.err("({d}): {s}", .{ id, message }),
+        gl.DEBUG_SEVERITY_MEDIUM => gl_log.err("({d}): {s}", .{ id, message }),
+        gl.DEBUG_SEVERITY_LOW => gl_log.warn("({d}): {s}", .{ id, message }),
+        gl.DEBUG_SEVERITY_NOTIFICATION => gl_log.info("({d}): {s}", .{ id, message }),
+        else => unreachable,
+    }
+}
+
 fn internalDrawQuad(q: Quad) void {
     gl.UseProgram(renderer_state.default_shader_program);
     defer gl.UseProgram(0);
@@ -115,6 +140,13 @@ fn internalDrawQuad(q: Quad) void {
     const transform = zm.Mat4f.translation(q.position.x, q.position.y, 0.0);
     gl.UniformMatrix4fv(gl.GetUniformLocation(renderer_state.default_shader_program, "u_Transform"), 1, gl.TRUE, @ptrCast(&(transform)));
 
+    if (q.texture) |t| {
+        gl.BindTexture(gl.TEXTURE_2D, t.id);
+    } else {
+        gl.BindTexture(gl.TEXTURE_2D, renderer_state.white_texture.id);
+    }
+
+    // color
     gl.Uniform4f(gl.GetUniformLocation(renderer_state.default_shader_program, "u_Color"), q.color.x, q.color.y, q.color.z, q.color.w);
 
     gl.BindVertexArray(renderer_state.quad_vao);
@@ -125,10 +157,10 @@ fn internalDrawQuad(q: Quad) void {
 
 const quad_mesh = struct {
     const vertices = [_]Vertex{
-        .{ .position = .{ -0.5, -0.5, 0.0 }, .uv = .{ 0.0, 0.0 } },
-        .{ .position = .{ 0.5, -0.5, 0.0 }, .uv = .{ 1.0, 0.0 } },
-        .{ .position = .{ 0.5, 0.5, 0.0 }, .uv = .{ 1.0, 1.0 } },
-        .{ .position = .{ -0.5, 0.5, 0.0 }, .uv = .{ 0.0, 1.0 } },
+        .{ .position = .{ -0.5, -0.5, 0.0 }, .uv = .{ 0.0, 1.0 } },
+        .{ .position = .{ 0.5, -0.5, 0.0 }, .uv = .{ 1.0, 1.0 } },
+        .{ .position = .{ 0.5, 0.5, 0.0 }, .uv = .{ 1.0, 0.0 } },
+        .{ .position = .{ -0.5, 0.5, 0.0 }, .uv = .{ 0.0, 0.0 } },
     };
 
     const indices = [_]u8{ 0, 1, 2, 2, 3, 0 };

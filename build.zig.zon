@@ -17,6 +17,10 @@
             .url = "git+https://github.com/griush/zm#50d6c83ee4bf3ae8b0ab370cfe77e700d8fdd601",
             .hash = "12206ec8ddce3c622a8d809e1aa92d9ec2c05e88de0f85eadc98a6ed7fdad5c79b07",
         },
+        .zigimg = .{
+            .url = "git+https://github.com/griush/zigimg#ed4cce04881bd5f9e9b99fde09760ad6f795d164",
+            .hash = "12206991c867bc9dcceac856ea8505db411859d48c5ac1411e920aa79f77c43a60b8",
+        },
     },
 
     .paths = .{
