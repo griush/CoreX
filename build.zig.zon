@@ -18,8 +18,8 @@
             .hash = "12206ec8ddce3c622a8d809e1aa92d9ec2c05e88de0f85eadc98a6ed7fdad5c79b07",
         },
         .zigimg = .{
-            .url = "git+https://github.com/griush/zigimg#ed4cce04881bd5f9e9b99fde09760ad6f795d164",
-            .hash = "12206991c867bc9dcceac856ea8505db411859d48c5ac1411e920aa79f77c43a60b8",
+            .url = "git+https://github.com/griush/zigimg#16ceff5b9daea1ea724ff1964c5cc1831a50dc03",
+            .hash = "1220e56a25b30ca03abdcf89170229742d8347ff13f284d7706f536d72c5d8e6cb65",
         },
     },
 
