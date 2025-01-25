@@ -30,7 +30,10 @@ pub const Camera2D = struct {
 
 pub const Quad = struct {
     position: core.Vec2 = .{ .x = 0, .y = 0 },
-    size: core.Vec2 = .{ .x = 1.0, .y = 1.0 },
+
+    /// in degrees
+    rotation: f32 = 0.0,
+    scale: core.Vec2 = .{ .x = 1.0, .y = 1.0 },
     z_index: i32 = 0,
 
     texture: ?Texture = null,
@@ -171,7 +174,7 @@ fn internalDrawQuad(q: Quad) void {
     gl.UniformMatrix4fv(gl.GetUniformLocation(renderer_state.default_shader_program, "u_ViewProjection"), 1, gl.TRUE, @ptrCast(&(renderer_state.view_proj)));
 
     // transform
-    const transform = zm.Mat4f.translation(q.position.x, q.position.y, 0.0).multiply(zm.Mat4f.scaling(q.size.x, q.size.y, 1.0));
+    const transform = zm.Mat4f.translation(q.position.x, q.position.y, 0.0).multiply(zm.Mat4f.rotation(.{ 0.0, 0.0, 1.0 }, std.math.degreesToRadians(q.rotation))).multiply(zm.Mat4f.scaling(q.scale.x, q.scale.y, 0.0));
     gl.UniformMatrix4fv(gl.GetUniformLocation(renderer_state.default_shader_program, "u_Transform"), 1, gl.TRUE, @ptrCast(&(transform)));
 
     // texture

@@ -61,10 +61,10 @@ pub fn main() !void {
             y -= 10.0 * cx.deltaTimef();
         }
         if (cx.isKeyPressed(.q)) {
-            rotation -= 90.0 * cx.deltaTimef();
+            rotation -= 180.0 * cx.deltaTimef();
         }
         if (cx.isKeyPressed(.e)) {
-            rotation += 90.0 * cx.deltaTimef();
+            rotation += 180.0 * cx.deltaTimef();
         }
         if (cx.isKeyPressed(.s)) {
             if (!s_key_handled) {
@@ -89,7 +89,7 @@ pub fn main() !void {
         // render 2D scene
         cx.beginScene2D(&main_camera);
 
-        cx.drawQuad(.{ .size = .{ .x = 7.0, .y = 7.0 }, .z_index = -1, .color = cx.color.blue, .texture = checkerboard, .tiling = 7.0 });
+        cx.drawQuad(.{ .scale = .{ .x = 7.0, .y = 7.0 }, .z_index = -1, .color = cx.color.blue, .texture = checkerboard, .tiling = 7.0 });
 
         if (cx.isMouseButtonPressed(.right)) {
             cx.drawQuad(.{ .position = .{ .x = 0.0, .y = @floatCast(std.math.sin(cx.getTime())) }, .color = cx.color.orange, .z_index = 1, .texture = checkerboard });
@@ -103,18 +103,20 @@ pub fn main() !void {
 
         cx.drawQuad(.{ .position = .{ .x = 0.0, .y = 2.0 }, .texture = checkerboard });
 
+        cx.drawQuad(.{ .position = .{ .x = -1.5, .y = -2.0 }, .rotation = @floatCast(cx.getTime() * 180.0), .scale = .{ .x = 2.0, .y = 2.0 }, .tiling = 2.0, .texture = checkerboard });
+
         cx.endScene2D();
 
         // then, render UI
         cx.beginUI();
         cx.drawQuad(.{
             .position = .{ .x = 125.0, .y = 50.0 },
-            .size = .{ .x = 250.0, .y = 100.0 },
+            .scale = .{ .x = 250.0, .y = 100.0 },
             .color = cx.color.yellow,
         });
         cx.drawQuad(.{
             .position = .{ .x = 50.0, .y = 150.0 },
-            .size = .{ .x = 100.0, .y = 100.0 },
+            .scale = .{ .x = 100.0, .y = 100.0 },
             .color = if (playing) cx.color.green else cx.color.red,
         });
         cx.endUI();

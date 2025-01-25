@@ -54,6 +54,7 @@ pub fn build(b: *std.Build) void {
     const example_exe = b.addExecutable(.{
         .name = "corex-example",
         .root_module = example_mod,
+        .use_lld = false,
     });
     b.installArtifact(example_exe);
     const run_cmd = b.addRunArtifact(example_exe);
