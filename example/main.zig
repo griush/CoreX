@@ -7,7 +7,6 @@ pub fn main() !void {
         .window_title = "CoreX Example",
         .window_width = 1280,
         .window_height = 720,
-        .start_maximized = false,
     });
     defer cx.deinit();
 

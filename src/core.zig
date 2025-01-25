@@ -2,6 +2,7 @@ const std = @import("std");
 
 const gl = @import("gl");
 const glfw = @import("glfw");
+pub const Key = glfw.Key;
 
 const renderer = @import("renderer.zig");
 
@@ -147,8 +148,6 @@ pub fn setWindowTitle(comptime fmt: []const u8, args: anytype) void {
 ///////////////
 //// INPUT ////
 ///////////////
-pub const Key = glfw.Key;
-
 pub fn isKeyPressed(key: Key) bool {
     return window.getKey(key) == .press;
 }

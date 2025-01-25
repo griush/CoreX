@@ -23,6 +23,7 @@ pub const colors = struct {
 pub const Vec2 = core.Vec2;
 pub const Vec4 = core.Vec4;
 pub const InitOptions = core.InitOptions;
+
 pub const init = core.init;
 pub const deinit = core.deinit;
 pub const update = core.update;
@@ -35,6 +36,7 @@ pub const getTime = core.getTime;
 
 // Input
 pub const Key = core.Key;
+
 pub const isKeyPressed = core.isKeyPressed;
 
 // Renderer
