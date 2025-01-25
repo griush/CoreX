@@ -1,4 +1,5 @@
 const core = @import("core.zig");
+const input = @import("input.zig");
 const renderer = @import("renderer.zig");
 
 // Constants
@@ -35,9 +36,11 @@ pub const setWindowTitle = core.setWindowTitle;
 pub const getTime = core.getTime;
 
 // Input
-pub const Key = core.Key;
+pub const Key = input.Key;
 
-pub const isKeyPressed = core.isKeyPressed;
+pub const isKeyPressed = input.isKeyPressed;
+pub const isMouseButtonPressed = input.isMouseButtonPressed;
+pub const getMousePos = input.getMousePos;
 
 // Renderer
 pub const Camera2D = renderer.Camera2D;
