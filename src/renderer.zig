@@ -28,10 +28,12 @@ pub const Camera2D = struct {
 
 pub const Quad = struct {
     position: core.Vec2 = .{ .x = 0, .y = 0 },
+    size: core.Vec2 = .{ .x = 1.0, .y = 1.0 },
     z_index: i32 = 0,
 
     texture: ?Texture = null,
     color: core.Vec4 = .{ .x = 1.0, .y = 1.0, .z = 1.0, .w = 1.0 },
+    tiling: f32 = 1.0,
 };
 
 pub fn init() !void {
@@ -145,17 +147,20 @@ fn internalDrawQuad(q: Quad) void {
     defer gl.UseProgram(0);
 
     // camera
+    // TODO: move to uniform buffer
     gl.UniformMatrix4fv(gl.GetUniformLocation(renderer_state.default_shader_program, "u_ViewProjection"), 1, gl.TRUE, @ptrCast(&(renderer_state.view_proj)));
 
     // transform
-    const transform = zm.Mat4f.translation(q.position.x, q.position.y, 0.0);
+    const transform = zm.Mat4f.translation(q.position.x, q.position.y, 0.0).multiply(zm.Mat4f.scaling(q.size.x, q.size.y, 1.0));
     gl.UniformMatrix4fv(gl.GetUniformLocation(renderer_state.default_shader_program, "u_Transform"), 1, gl.TRUE, @ptrCast(&(transform)));
 
+    // texture
     if (q.texture) |t| {
         gl.BindTexture(gl.TEXTURE_2D, t.id);
     } else {
         gl.BindTexture(gl.TEXTURE_2D, renderer_state.white_texture.id);
     }
+    gl.Uniform1f(gl.GetUniformLocation(renderer_state.default_shader_program, "u_TilingFactor"), q.tiling);
 
     // color
     gl.Uniform4f(gl.GetUniformLocation(renderer_state.default_shader_program, "u_Color"), q.color.x, q.color.y, q.color.z, q.color.w);

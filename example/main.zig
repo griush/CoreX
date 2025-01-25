@@ -21,7 +21,7 @@ pub fn main() !void {
     var y: f32 = 0.0;
     var rotation: f32 = 0.0;
     var main_camera = cx.Camera2D{
-        .size = 4.5,
+        .size = 7.5,
     };
     while (!cx.windowShouldClose()) {
         cx.update();
@@ -57,6 +57,8 @@ pub fn main() !void {
 
         cx.beginFrame(cx.color.black);
         cx.beginScene2D(&main_camera);
+
+        cx.drawQuad(.{ .size = .{ .x = 7.0, .y = 7.0 }, .z_index = -1, .color = cx.color.blue, .texture = checkerboard, .tiling = 7.0 });
 
         cx.drawQuad(.{ .position = .{ .x = 0.0, .y = @floatCast(std.math.sin(cx.getTime())) }, .color = cx.color.red, .z_index = 1, .texture = checkerboard });
 
