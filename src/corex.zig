@@ -19,6 +19,8 @@ pub const color = struct {
     pub const yellow = Vec4{ .x = 1.0, .y = 1.0, .z = 0.0, .w = 1.0 };
     pub const pink = Vec4{ .x = 1.0, .y = 0.0, .z = 1.0, .w = 1.0 };
     pub const cyan = Vec4{ .x = 0.0, .y = 1.0, .z = 1.0, .w = 1.0 };
+
+    pub const orange = Vec4{ .x = 0.9, .y = 0.4, .z = 0.05, .w = 1.0 };
 };
 
 // Core

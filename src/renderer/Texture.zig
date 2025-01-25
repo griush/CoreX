@@ -13,7 +13,7 @@ pub const FilterMode = enum {
 };
 
 pub const Options = struct {
-    filepath: []const u8,
+    filepath: [:0]const u8,
     filter_mode: FilterMode = .linear,
 };
 
@@ -42,6 +42,7 @@ pub fn init(options: Options) !Texture {
         .rgba32 => gl.RGBA8,
         else => @panic("Texture format not supported"),
     };
+
     const data_format: u32 = switch (image.pixelFormat()) {
         .rgb24 => gl.RGB,
         .rgba32 => gl.RGBA,

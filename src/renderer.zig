@@ -12,6 +12,8 @@ pub const Texture = @import("renderer/Texture.zig");
 const vertex_shader_source: [:0]const u8 = @embedFile("shaders/default.glsl.vert");
 const fragment_shader_source: [:0]const u8 = @embedFile("shaders/default.glsl.frag");
 
+var procs: gl.ProcTable = undefined;
+
 const glfw_log = std.log.scoped(.glfw);
 const gl_log = std.log.scoped(.gl);
 
@@ -37,6 +39,9 @@ pub const Quad = struct {
 };
 
 pub fn init() !void {
+    if (!procs.init(glfw.getProcAddress)) return error.GLerror;
+    gl.makeProcTableCurrent(&procs);
+
     if (@import("builtin").mode == .Debug) {
         gl.Enable(gl.DEBUG_OUTPUT);
         gl.Enable(gl.DEBUG_OUTPUT_SYNCHRONOUS);
@@ -69,6 +74,8 @@ pub fn deinit() void {
     gl.DeleteBuffers(1, (&renderer_state.quad_vbo)[0..1]);
     gl.DeleteBuffers(1, (&renderer_state.quad_ibo)[0..1]);
     gl.DeleteProgram(renderer_state.default_shader_program);
+
+    gl.makeProcTableCurrent(null);
 }
 
 pub fn onResize(width: i32, height: i32) void {

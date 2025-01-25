@@ -22,12 +22,14 @@ pub fn main() !void {
     var swan_lake = try cx.Sound.init(.{
         .filepath = "example/assets/audio/swan_lake.mp3",
         .loop = false,
+        .volume = 0.5,
     });
     defer swan_lake.deinit();
+
+    // setup game state
     var playing = false;
     // TODO: make input helper for this
     var s_key_handled = false; // trick for single press check
-
     var x: f32 = 0.0;
     var y: f32 = 0.0;
     var rotation: f32 = 0.0;
@@ -35,11 +37,13 @@ pub fn main() !void {
         .size = 7.5,
     };
 
+    // game loop
     while (!cx.windowShouldClose()) {
-        cx.update();
+        cx.update(); // first thing called on each frame
 
         cx.setWindowTitle("CoreX Example | FPS: {d:.3}", .{1.0 / cx.deltaTime()});
 
+        // handle user input and update state
         if (cx.isKeyPressed(.escape)) {
             cx.quit();
         }
@@ -82,12 +86,13 @@ pub fn main() !void {
         main_camera.rotation = rotation;
 
         cx.beginFrame(cx.color.black);
+        // render 2D scene
         cx.beginScene2D(&main_camera);
 
         cx.drawQuad(.{ .size = .{ .x = 7.0, .y = 7.0 }, .z_index = -1, .color = cx.color.blue, .texture = checkerboard, .tiling = 7.0 });
 
         if (cx.isMouseButtonPressed(.right)) {
-            cx.drawQuad(.{ .position = .{ .x = 0.0, .y = @floatCast(std.math.sin(cx.getTime())) }, .color = cx.color.green, .z_index = 1, .texture = checkerboard });
+            cx.drawQuad(.{ .position = .{ .x = 0.0, .y = @floatCast(std.math.sin(cx.getTime())) }, .color = cx.color.orange, .z_index = 1, .texture = checkerboard });
         } else {
             cx.drawQuad(.{ .position = .{ .x = 0.0, .y = @floatCast(std.math.sin(cx.getTime())) }, .color = cx.color.red, .z_index = 1, .texture = checkerboard });
         }
@@ -100,6 +105,7 @@ pub fn main() !void {
 
         cx.endScene2D();
 
+        // then, render UI
         cx.beginUI();
         cx.drawQuad(.{
             .position = .{ .x = 125.0, .y = 50.0 },

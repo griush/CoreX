@@ -1,4 +1,5 @@
 const std = @import("std");
+const builtin = @import("builtin");
 
 pub fn build(b: *std.Build) void {
     const target = b.standardTargetOptions(.{});
@@ -21,7 +22,7 @@ pub fn build(b: *std.Build) void {
     // dep: gl
     const gl_bindings = @import("zigglgen").generateBindingsModule(b, .{
         .api = .gl,
-        .version = .@"4.3",
+        .version = if (builtin.os.tag == .macos) .@"4.1" else .@"4.3",
         .profile = .core,
         .extensions = &.{},
     });

@@ -10,14 +10,12 @@ pub var allocator: std.mem.Allocator = undefined;
 
 // TODO: find better place for these (global state)
 pub var window: glfw.Window = undefined;
-var procs: gl.ProcTable = undefined;
 
 // deltaTime
 var last_frame_time: f64 = 0.0;
 var delta_time: f64 = 0.0;
 
 const glfw_log = std.log.scoped(.glfw);
-const gl_log = std.log.scoped(.gl);
 
 fn logGLFWError(error_code: glfw.ErrorCode, description: [:0]const u8) void {
     glfw_log.err("{}: {s}\n", .{ error_code, description });
@@ -80,9 +78,6 @@ pub fn init(options: InitOptions) !void {
 
     glfw.makeContextCurrent(window);
 
-    if (!procs.init(glfw.getProcAddress)) return error.GLerror;
-    gl.makeProcTableCurrent(&procs);
-
     glfw.swapInterval(if (options.vsync) 1 else 0);
 
     try renderer.init();
@@ -99,7 +94,6 @@ pub fn deinit() void {
     audio.deinit();
     renderer.deinit();
 
-    gl.makeProcTableCurrent(null);
     glfw.makeContextCurrent(null);
     window.destroy();
     glfw.terminate();
@@ -120,7 +114,6 @@ pub fn deltaTime() f64 {
 
 /// Returns deltaTime but as an `f32`
 pub fn deltaTimef() f32 {
-    // TODO: think if this is what we want
     return @floatCast(delta_time);
 }
 
