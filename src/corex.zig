@@ -1,6 +1,7 @@
 const core = @import("core.zig");
 const input = @import("input.zig");
 const renderer = @import("renderer.zig");
+const audio = @import("audio.zig");
 
 // Constants
 pub const color = struct {
@@ -56,3 +57,6 @@ pub const beginUI = renderer.beginUI;
 pub const endUI = renderer.endUI;
 
 pub const drawQuad = renderer.drawQuad;
+
+// Audio
+pub const Sound = audio.Sound;

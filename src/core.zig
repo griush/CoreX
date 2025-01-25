@@ -4,6 +4,7 @@ const gl = @import("gl");
 const glfw = @import("glfw");
 
 const renderer = @import("renderer.zig");
+const audio = @import("audio.zig");
 
 pub var allocator: std.mem.Allocator = undefined;
 
@@ -90,9 +91,12 @@ pub fn init(options: InitOptions) !void {
     if (options.start_maximized) {
         window.maximize();
     }
+
+    try audio.init();
 }
 
 pub fn deinit() void {
+    audio.deinit();
     renderer.deinit();
 
     gl.makeProcTableCurrent(null);

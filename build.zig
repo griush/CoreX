@@ -38,6 +38,11 @@ pub fn build(b: *std.Build) void {
     });
     corex_mod.addImport("zigimg", zigimg_dependency.module("zigimg"));
 
+    // dep: zaudio
+    const zaudio = b.dependency("zaudio", .{});
+    corex_mod.addImport("zaudio", zaudio.module("root"));
+    corex_mod.linkLibrary(zaudio.artifact("miniaudio"));
+
     // example
     const example_mod = b.createModule(.{
         .root_source_file = b.path("example/main.zig"),

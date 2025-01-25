@@ -21,13 +21,16 @@
             .url = "git+https://github.com/griush/zigimg#16ceff5b9daea1ea724ff1964c5cc1831a50dc03",
             .hash = "1220e56a25b30ca03abdcf89170229742d8347ff13f284d7706f536d72c5d8e6cb65",
         },
+        .zaudio = .{
+            .url = "git+https://github.com/zig-gamedev/zaudio#496da32757767b31f389554e1e5c668796755fe2",
+            .hash = "12203f6ab72861cd7e36ebd1590f9cc7fd036366e2ff96122002a395f628e813d999",
+        },
     },
 
     .paths = .{
         "build.zig",
         "build.zig.zon",
         "src",
-        "example",
         "LICENSE",
         "README.md",
         ".gitignore",
