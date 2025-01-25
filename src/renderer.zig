@@ -18,6 +18,21 @@ const gl_log = std.log.scoped(.gl);
 ////////////////
 //// Public ////
 ////////////////
+pub const Camera2D = struct {
+    position: core.Vec2 = .{ .x = 0.0, .y = 0.0 },
+
+    /// in degrees
+    rotation: f32 = 0.0,
+    size: f32 = 5.0,
+};
+
+pub const Quad = struct {
+    position: core.Vec2 = .{ .x = 0, .y = 0 },
+    z_index: i32 = 0,
+
+    texture: ?Texture = null,
+    color: core.Vec4 = .{ .x = 1.0, .y = 1.0, .z = 1.0, .w = 1.0 },
+};
 
 pub fn init() !void {
     if (@import("builtin").mode == .Debug) {
@@ -42,8 +57,7 @@ pub fn init() !void {
         .height = 1,
     });
 
-    const aspect = getAspectRatio();
-    renderer_state.view_proj = .orthographic(-5.0 * aspect, 5.0 * aspect, -5.0, 5.0, -1.0, 1.0);
+    renderer_state.view_proj = .identity();
 }
 
 pub fn deinit() void {
@@ -57,32 +71,16 @@ pub fn deinit() void {
 
 pub fn onResize(width: i32, height: i32) void {
     gl.Viewport(0, 0, @intCast(width), @intCast(height));
-
-    const aspect = getAspectRatio();
-    renderer_state.view_proj = .orthographic(-5.0 * aspect, 5.0 * aspect, -5.0, 5.0, -1.0, 1.0);
 }
 
-pub const Quad = struct {
-    position: core.Vec2 = .{ .x = 0, .y = 0 },
-    z_index: i32 = 0,
-
-    texture: ?Texture = null,
-    color: core.Vec4 = .{ .x = 1.0, .y = 1.0, .z = 1.0, .w = 1.0 },
-};
-
-fn quadLessThan(ctx: void, a: Quad, b: Quad) bool {
-    _ = ctx;
-    return a.z_index < b.z_index;
-}
-
-pub fn beginDraw(clear_color: core.Vec4) void {
+pub fn beginFrame(clear_color: core.Vec4) void {
     renderer_state.draw_queue.clearRetainingCapacity();
 
     gl.ClearColor(clear_color.x, clear_color.y, clear_color.z, 1.0);
     gl.Clear(gl.COLOR_BUFFER_BIT);
 }
 
-pub fn endDraw() void {
+pub fn endFrame() void {
     // draw queue
     std.sort.insertion(Quad, renderer_state.draw_queue.items, void{}, quadLessThan);
     for (renderer_state.draw_queue.items) |quad| {
@@ -90,6 +88,14 @@ pub fn endDraw() void {
     }
 
     core.window.swapBuffers();
+}
+
+pub fn beginScene2D(camera: *const Camera2D) void {
+    const aspect = getAspectRatio();
+    const projection = zm.Mat4f.orthographic(-camera.size * aspect, camera.size * aspect, -camera.size, camera.size, -1.0, 1.0);
+    const transform = zm.Mat4f.translation(camera.position.x, camera.position.y, 0.0);
+    const view = transform.multiply(zm.Mat4f.rotation(.{ 0.0, 0.0, 1.0 }, std.math.degreesToRadians(camera.rotation)));
+    renderer_state.view_proj = projection.multiply(view.inverse());
 }
 
 pub fn drawQuad(q: Quad) void {
@@ -127,6 +133,11 @@ fn glDebugCallback(source: c_uint, t: c_uint, id: c_uint, severity: c_uint, leng
         gl.DEBUG_SEVERITY_NOTIFICATION => gl_log.info("({d}): {s}", .{ id, message }),
         else => unreachable,
     }
+}
+
+fn quadLessThan(ctx: void, a: Quad, b: Quad) bool {
+    _ = ctx;
+    return a.z_index < b.z_index;
 }
 
 fn internalDrawQuad(q: Quad) void {

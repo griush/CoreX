@@ -12,7 +12,7 @@ pub var allocator: std.mem.Allocator = undefined;
 pub var window: glfw.Window = undefined;
 var procs: gl.ProcTable = undefined;
 
-// deltaTimer
+// deltaTime
 var last_frame_time: f64 = 0.0;
 var delta_time: f64 = 0.0;
 
@@ -30,15 +30,21 @@ fn glfwSizeCallback(win: glfw.Window, width: i32, height: i32) void {
 
 // TODO: move math
 pub const Vec2 = struct {
-    x: f32,
-    y: f32,
+    x: f32 = 0.0,
+    y: f32 = 0.0,
+};
+
+pub const Vec3 = struct {
+    x: f32 = 0.0,
+    y: f32 = 0.0,
+    z: f32 = 0.0,
 };
 
 pub const Vec4 = struct {
-    x: f32,
-    y: f32,
-    z: f32,
-    w: f32,
+    x: f32 = 0.0,
+    y: f32 = 0.0,
+    z: f32 = 0.0,
+    w: f32 = 0.0,
 };
 
 pub const InitOptions = struct {

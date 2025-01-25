@@ -1,5 +1,6 @@
-const cx = @import("corex");
 const std = @import("std");
+
+const cx = @import("corex");
 
 pub fn main() !void {
     try cx.init(.{
@@ -18,6 +19,10 @@ pub fn main() !void {
 
     var x: f32 = 0.0;
     var y: f32 = 0.0;
+    var rotation: f32 = 0.0;
+    var main_camera = cx.Camera2D{
+        .size = 4.5,
+    };
     while (!cx.windowShouldClose()) {
         cx.update();
 
@@ -39,16 +44,28 @@ pub fn main() !void {
         if (cx.isKeyPressed(.down)) {
             y -= 10.0 * cx.deltaTimef(); // 10 m/s
         }
+        if (cx.isKeyPressed(.q)) {
+            rotation -= 90.0 * cx.deltaTimef(); // 10 m/s
+        }
+        if (cx.isKeyPressed(.e)) {
+            rotation += 90.0 * cx.deltaTimef(); // 10 m/s
+        }
 
-        cx.beginDraw(cx.colors.black);
+        main_camera.position.x = x;
+        main_camera.position.y = y;
+        main_camera.rotation = rotation;
 
-        cx.drawQuad(.{ .position = .{ .x = x, .y = y }, .color = cx.colors.red, .z_index = 1, .texture = checkerboard });
+        cx.beginFrame(cx.color.black);
+        cx.beginScene2D(&main_camera);
 
-        cx.drawQuad(.{ .position = .{ .x = 1.0, .y = 0.0 }, .color = cx.colors.gray });
-        cx.drawQuad(.{ .position = .{ .x = 1.0, .y = 1.0 }, .color = cx.colors.dark_gray });
-        cx.drawQuad(.{ .position = .{ .x = 1.0, .y = -1.0 }, .color = cx.colors.light_gray });
+        cx.drawQuad(.{ .position = .{ .x = 0.0, .y = @floatCast(std.math.sin(cx.getTime())) }, .color = cx.color.red, .z_index = 1, .texture = checkerboard });
 
-        cx.drawQuad(.{ .position = .{ .x = 0.0, .y = 3.0 }, .texture = checkerboard });
-        cx.endDraw();
+        cx.drawQuad(.{ .position = .{ .x = 1.0, .y = 0.0 }, .color = cx.color.gray });
+        cx.drawQuad(.{ .position = .{ .x = 1.0, .y = 1.0 }, .color = cx.color.dark_gray });
+        cx.drawQuad(.{ .position = .{ .x = 1.0, .y = -1.0 }, .color = cx.color.light_gray });
+
+        cx.drawQuad(.{ .position = .{ .x = 0.0, .y = 2.0 }, .texture = checkerboard });
+
+        cx.endFrame();
     }
 }

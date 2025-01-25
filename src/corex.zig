@@ -2,7 +2,7 @@ const core = @import("core.zig");
 const renderer = @import("renderer.zig");
 
 // Constants
-pub const colors = struct {
+pub const color = struct {
     pub const white = Vec4{ .x = 1.0, .y = 1.0, .z = 1.0, .w = 1.0 };
     pub const black = Vec4{ .x = 0.0, .y = 0.0, .z = 0.0, .w = 1.0 };
 
@@ -40,10 +40,13 @@ pub const Key = core.Key;
 pub const isKeyPressed = core.isKeyPressed;
 
 // Renderer
+pub const Camera2D = renderer.Camera2D;
 pub const Quad = renderer.Quad;
 pub const Texture = renderer.Texture;
 
-pub const beginDraw = renderer.beginDraw;
-pub const endDraw = renderer.endDraw;
+pub const beginFrame = renderer.beginFrame;
+pub const endFrame = renderer.endFrame;
+
+pub const beginScene2D = renderer.beginScene2D;
 
 pub const drawQuad = renderer.drawQuad;
