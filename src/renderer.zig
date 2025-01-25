@@ -76,22 +76,17 @@ pub fn onResize(width: i32, height: i32) void {
 }
 
 pub fn beginFrame(clear_color: core.Vec4) void {
-    renderer_state.draw_queue.clearRetainingCapacity();
-
     gl.ClearColor(clear_color.x, clear_color.y, clear_color.z, 1.0);
     gl.Clear(gl.COLOR_BUFFER_BIT);
 }
 
 pub fn endFrame() void {
-    // draw queue
-    std.sort.insertion(Quad, renderer_state.draw_queue.items, void{}, quadLessThan);
-    for (renderer_state.draw_queue.items) |quad| {
-        internalDrawQuad(quad);
-    }
-
     core.window.swapBuffers();
 }
 
+/////////////////////
+//// 2D Renderer ////
+/////////////////////
 pub fn beginScene2D(camera: *const Camera2D) void {
     const aspect = getAspectRatio();
     const projection = zm.Mat4f.orthographic(-camera.size * aspect, camera.size * aspect, -camera.size, camera.size, -1.0, 1.0);
@@ -100,10 +95,28 @@ pub fn beginScene2D(camera: *const Camera2D) void {
     renderer_state.view_proj = projection.multiply(view.inverse());
 }
 
+pub fn endScene2D() void {
+    flush();
+    renderer_state.view_proj = .identity();
+}
+
 pub fn drawQuad(q: Quad) void {
     renderer_state.draw_queue.append(q) catch |err| {
         std.log.err("drawQuad(): {s}", .{@errorName(err)});
     };
+}
+
+/////////////////////
+//// UI Renderer ////
+/////////////////////
+pub fn beginUI() void {
+    const fb_size = core.window.getFramebufferSize();
+    renderer_state.view_proj = zm.Mat4f.orthographic(0.0, @floatFromInt(fb_size.width), @floatFromInt(fb_size.height), 0.0, -1.0, 1.0);
+}
+
+pub fn endUI() void {
+    flush();
+    renderer_state.view_proj = .identity();
 }
 
 /////////////////
@@ -309,4 +322,13 @@ fn createQuad() void {
             gl.STATIC_DRAW,
         );
     }
+}
+
+fn flush() void {
+    std.sort.insertion(Quad, renderer_state.draw_queue.items, void{}, quadLessThan);
+    for (renderer_state.draw_queue.items) |quad| {
+        internalDrawQuad(quad);
+    }
+
+    renderer_state.draw_queue.clearRetainingCapacity();
 }

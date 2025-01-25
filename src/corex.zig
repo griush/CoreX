@@ -51,5 +51,8 @@ pub const beginFrame = renderer.beginFrame;
 pub const endFrame = renderer.endFrame;
 
 pub const beginScene2D = renderer.beginScene2D;
+pub const endScene2D = renderer.endScene2D;
+pub const beginUI = renderer.beginUI;
+pub const endUI = renderer.endUI;
 
 pub const drawQuad = renderer.drawQuad;

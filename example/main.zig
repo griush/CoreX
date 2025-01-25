@@ -72,6 +72,16 @@ pub fn main() !void {
 
         cx.drawQuad(.{ .position = .{ .x = 0.0, .y = 2.0 }, .texture = checkerboard });
 
+        cx.endScene2D();
+
+        cx.beginUI();
+        cx.drawQuad(.{
+            .position = .{ .x = 125.0, .y = 50.0 },
+            .size = .{ .x = 250.0, .y = 100.0 },
+            .color = cx.color.yellow,
+        });
+        cx.endUI();
+
         cx.endFrame();
     }
 }
