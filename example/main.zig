@@ -30,9 +30,9 @@ pub fn main() !void {
     var playing = false;
     // TODO: make input helper for this
     var s_key_handled = false; // trick for single press check
-    var x: f32 = 0.0;
-    var y: f32 = 0.0;
+    var camera_dir = cx.Vec2{ 0.0, 0.0 };
     var rotation: f32 = 0.0;
+    const camera_speed = 10.0;
     var main_camera = cx.Camera2D{
         .size = 7.5,
     };
@@ -49,22 +49,22 @@ pub fn main() !void {
         }
 
         if (cx.isKeyPressed(.left)) {
-            x -= 10.0 * cx.deltaTimef();
+            camera_dir[0] += -1.0;
         }
         if (cx.isKeyPressed(.right)) {
-            x += 10.0 * cx.deltaTimef();
+            camera_dir[0] += 1.0;
         }
         if (cx.isKeyPressed(.up)) {
-            y += 10.0 * cx.deltaTimef();
+            camera_dir[1] += 1.0;
         }
         if (cx.isKeyPressed(.down)) {
-            y -= 10.0 * cx.deltaTimef();
+            camera_dir[1] += -1.0;
         }
         if (cx.isKeyPressed(.q)) {
-            rotation -= 180.0 * cx.deltaTimef();
+            rotation += 180.0 * cx.deltaTimef();
         }
         if (cx.isKeyPressed(.e)) {
-            rotation += 180.0 * cx.deltaTimef();
+            rotation -= 180.0 * cx.deltaTimef();
         }
         if (cx.isKeyPressed(.s)) {
             if (!s_key_handled) {
@@ -81,42 +81,46 @@ pub fn main() !void {
             s_key_handled = false;
         }
 
-        main_camera.position.x = x;
-        main_camera.position.y = y;
+        const dir_magnitude = cx.math.magnitude(camera_dir);
+        if (dir_magnitude > 0.0) {
+            main_camera.position[0] += (camera_dir[0] / dir_magnitude) * camera_speed * cx.deltaTimef();
+            main_camera.position[1] += (camera_dir[1] / dir_magnitude) * camera_speed * cx.deltaTimef();
+        }
         main_camera.rotation = rotation;
+        camera_dir = cx.Vec2{ 0.0, 0.0 };
 
         cx.beginFrame(cx.color.black);
         // render 2D scene
         cx.beginScene2D(&main_camera);
 
-        cx.drawQuad(.{ .scale = .{ .x = 7.0, .y = 7.0 }, .z_index = -1, .color = cx.color.blue, .texture = checkerboard, .tiling = 7.0 });
+        cx.drawQuad(.{ .scale = .{ 7.0, 7.0 }, .z_index = -1, .color = cx.color.blue, .texture = checkerboard, .tiling = 7.0 });
 
         if (cx.isMouseButtonPressed(.right)) {
-            cx.drawQuad(.{ .position = .{ .x = 0.0, .y = @floatCast(std.math.sin(cx.getTime())) }, .color = cx.color.orange, .z_index = 1, .texture = checkerboard });
+            cx.drawQuad(.{ .position = .{ 0.0, @floatCast(std.math.sin(cx.getTime())) }, .color = cx.color.orange, .z_index = 1, .texture = checkerboard });
         } else {
-            cx.drawQuad(.{ .position = .{ .x = 0.0, .y = @floatCast(std.math.sin(cx.getTime())) }, .color = cx.color.red, .z_index = 1, .texture = checkerboard });
+            cx.drawQuad(.{ .position = .{ 0.0, @floatCast(std.math.sin(cx.getTime())) }, .color = cx.color.red, .z_index = 1, .texture = checkerboard });
         }
 
-        cx.drawQuad(.{ .position = .{ .x = 1.0, .y = 0.0 }, .color = cx.color.gray });
-        cx.drawQuad(.{ .position = .{ .x = 1.0, .y = 1.0 }, .color = cx.color.dark_gray });
-        cx.drawQuad(.{ .position = .{ .x = 1.0, .y = -1.0 }, .color = cx.color.light_gray });
+        cx.drawQuad(.{ .position = .{ 1.0, 0.0 }, .color = cx.color.gray });
+        cx.drawQuad(.{ .position = .{ 1.0, 1.0 }, .color = cx.color.dark_gray });
+        cx.drawQuad(.{ .position = .{ 1.0, -1.0 }, .color = cx.color.light_gray });
 
-        cx.drawQuad(.{ .position = .{ .x = 0.0, .y = 2.0 }, .texture = checkerboard });
+        cx.drawQuad(.{ .position = .{ 0.0, 2.0 }, .texture = checkerboard });
 
-        cx.drawQuad(.{ .position = .{ .x = -1.5, .y = -2.0 }, .rotation = @floatCast(cx.getTime() * 180.0), .scale = .{ .x = 2.0, .y = 2.0 }, .tiling = 2.0, .texture = checkerboard });
+        cx.drawQuad(.{ .position = .{ -1.5, -2.0 }, .rotation = @floatCast(cx.getTime() * 180.0), .scale = .{ 2.0, 2.0 }, .tiling = 2.0, .texture = checkerboard });
 
         cx.endScene2D();
 
         // then, render UI
         cx.beginUI();
         cx.drawQuad(.{
-            .position = .{ .x = 125.0, .y = 50.0 },
-            .scale = .{ .x = 250.0, .y = 100.0 },
+            .position = .{ 125.0, 50.0 },
+            .scale = .{ 250.0, 100.0 },
             .color = cx.color.yellow,
         });
         cx.drawQuad(.{
-            .position = .{ .x = 50.0, .y = 150.0 },
-            .scale = .{ .x = 100.0, .y = 100.0 },
+            .position = .{ 50.0, 150.0 },
+            .scale = .{ 100.0, 100.0 },
             .color = if (playing) cx.color.green else cx.color.red,
         });
         cx.endUI();

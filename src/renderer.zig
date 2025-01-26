@@ -6,7 +6,7 @@ const zigimg = @import("zigimg");
 const zm = @import("zm");
 
 const core = @import("core.zig");
-
+const math = @import("math.zig");
 pub const Texture = @import("renderer/Texture.zig");
 
 const vertex_shader_source: [:0]const u8 = @embedFile("shaders/default.glsl.vert");
@@ -14,14 +14,15 @@ const fragment_shader_source: [:0]const u8 = @embedFile("shaders/default.glsl.fr
 
 var procs: gl.ProcTable = undefined;
 
-const glfw_log = std.log.scoped(.glfw);
 const gl_log = std.log.scoped(.gl);
 
 ////////////////
 //// Public ////
 ////////////////
+
+/// Orthographic camera
 pub const Camera2D = struct {
-    position: core.Vec2 = .{ .x = 0.0, .y = 0.0 },
+    position: math.Vec2 = .{ 0.0, 0.0 },
 
     /// in degrees
     rotation: f32 = 0.0,
@@ -29,15 +30,15 @@ pub const Camera2D = struct {
 };
 
 pub const Quad = struct {
-    position: core.Vec2 = .{ .x = 0, .y = 0 },
+    position: math.Vec2 = .{ 0, 0 },
 
     /// in degrees
     rotation: f32 = 0.0,
-    scale: core.Vec2 = .{ .x = 1.0, .y = 1.0 },
+    scale: math.Vec2 = .{ 1.0, 1.0 },
     z_index: i32 = 0,
 
     texture: ?Texture = null,
-    color: core.Vec4 = .{ .x = 1.0, .y = 1.0, .z = 1.0, .w = 1.0 },
+    color: math.Vec4 = .{ 1.0, 1.0, 1.0, 1.0 },
     tiling: f32 = 1.0,
 };
 
@@ -85,8 +86,8 @@ pub fn onResize(width: i32, height: i32) void {
     gl.Viewport(0, 0, @intCast(width), @intCast(height));
 }
 
-pub fn beginFrame(clear_color: core.Vec4) void {
-    gl.ClearColor(clear_color.x, clear_color.y, clear_color.z, 1.0);
+pub fn beginFrame(clear_color: math.Vec4) void {
+    gl.ClearColor(clear_color[0], clear_color[1], clear_color[2], 1.0);
     gl.Clear(gl.COLOR_BUFFER_BIT);
 }
 
@@ -100,7 +101,7 @@ pub fn endFrame() void {
 pub fn beginScene2D(camera: *const Camera2D) void {
     const aspect = getAspectRatio();
     const projection = zm.Mat4f.orthographic(-camera.size * aspect, camera.size * aspect, -camera.size, camera.size, -1.0, 1.0);
-    const transform = zm.Mat4f.translation(camera.position.x, camera.position.y, 0.0);
+    const transform = zm.Mat4f.translation(camera.position[0], camera.position[1], 0.0);
     const view = transform.multiply(zm.Mat4f.rotation(.{ 0.0, 0.0, 1.0 }, std.math.degreesToRadians(camera.rotation)));
     renderer_state.view_proj = projection.multiply(view.inverse());
 }
@@ -174,7 +175,7 @@ fn internalDrawQuad(q: Quad) void {
     gl.UniformMatrix4fv(gl.GetUniformLocation(renderer_state.default_shader_program, "u_ViewProjection"), 1, gl.TRUE, @ptrCast(&(renderer_state.view_proj)));
 
     // transform
-    const transform = zm.Mat4f.translation(q.position.x, q.position.y, 0.0).multiply(zm.Mat4f.rotation(.{ 0.0, 0.0, 1.0 }, std.math.degreesToRadians(q.rotation))).multiply(zm.Mat4f.scaling(q.scale.x, q.scale.y, 0.0));
+    const transform = zm.Mat4f.translation(q.position[0], q.position[1], 0.0).multiply(zm.Mat4f.rotation(.{ 0.0, 0.0, 1.0 }, std.math.degreesToRadians(q.rotation))).multiply(zm.Mat4f.scaling(q.scale[0], q.scale[1], 0.0));
     gl.UniformMatrix4fv(gl.GetUniformLocation(renderer_state.default_shader_program, "u_Transform"), 1, gl.TRUE, @ptrCast(&(transform)));
 
     // texture
@@ -186,7 +187,7 @@ fn internalDrawQuad(q: Quad) void {
     gl.Uniform1f(gl.GetUniformLocation(renderer_state.default_shader_program, "u_TilingFactor"), q.tiling);
 
     // color
-    gl.Uniform4f(gl.GetUniformLocation(renderer_state.default_shader_program, "u_Color"), q.color.x, q.color.y, q.color.z, q.color.w);
+    gl.Uniform4f(gl.GetUniformLocation(renderer_state.default_shader_program, "u_Color"), q.color[0], q.color[1], q.color[2], q.color[3]);
 
     gl.BindVertexArray(renderer_state.quad_vao);
     defer gl.BindVertexArray(0);
@@ -208,8 +209,8 @@ const quad_mesh = struct {
         position: Position,
         uv: UV,
 
-        const Position = [3]f32;
-        const UV = [2]f32;
+        const Position = math.Vec3;
+        const UV = math.Vec2;
     };
 };
 

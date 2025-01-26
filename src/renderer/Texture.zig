@@ -27,7 +27,7 @@ pub const RawOptions = struct {
 };
 
 // TODO: should remove this opengl specific id
-// for something platfrom agnostic
+// for something api agnostic
 // leave for when renderer rewrite to vulkan/d3d12
 id: c_uint,
 width: usize,

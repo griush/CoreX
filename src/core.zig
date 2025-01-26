@@ -26,25 +26,6 @@ fn glfwSizeCallback(win: glfw.Window, width: i32, height: i32) void {
     renderer.onResize(width, height);
 }
 
-// TODO: move math
-pub const Vec2 = struct {
-    x: f32 = 0.0,
-    y: f32 = 0.0,
-};
-
-pub const Vec3 = struct {
-    x: f32 = 0.0,
-    y: f32 = 0.0,
-    z: f32 = 0.0,
-};
-
-pub const Vec4 = struct {
-    x: f32 = 0.0,
-    y: f32 = 0.0,
-    z: f32 = 0.0,
-    w: f32 = 0.0,
-};
-
 pub const InitOptions = struct {
     allocator: std.mem.Allocator,
 
