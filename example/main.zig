@@ -81,6 +81,7 @@ pub fn main() !void {
             s_key_handled = false;
         }
 
+        // normalize camera speed
         const dir_magnitude = cx.math.magnitude(camera_dir);
         if (dir_magnitude > 0.0) {
             main_camera.position[0] += (camera_dir[0] / dir_magnitude) * camera_speed * cx.deltaTimef();

@@ -18,8 +18,8 @@
             .hash = "12206ec8ddce3c622a8d809e1aa92d9ec2c05e88de0f85eadc98a6ed7fdad5c79b07",
         },
         .zigimg = .{
-            .url = "git+https://github.com/griush/zigimg#16ceff5b9daea1ea724ff1964c5cc1831a50dc03",
-            .hash = "1220e56a25b30ca03abdcf89170229742d8347ff13f284d7706f536d72c5d8e6cb65",
+            .url = "git+https://github.com/griush/zigimg#ff8495b0d945b7655a5df99f4d6236458312ef0d",
+            .hash = "122093b0307892ad5e0c60ebd70d5c39e5b3ae2dbe21e0e9d7007327954406d91515",
         },
         .zaudio = .{
             .url = "git+https://github.com/zig-gamedev/zaudio#496da32757767b31f389554e1e5c668796755fe2",
