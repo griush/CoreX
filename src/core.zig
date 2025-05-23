@@ -4,12 +4,12 @@ const gl = @import("gl");
 const glfw = @import("glfw");
 
 const renderer = @import("renderer.zig");
-const audio = @import("audio.zig");
+// const audio = @import("audio.zig");
 
 pub var allocator: std.mem.Allocator = undefined;
 
 // TODO: find better place for these (global state)
-pub var window: glfw.Window = undefined;
+pub var window: *glfw.Window = undefined;
 
 // deltaTime
 var last_frame_time: f64 = 0.0;
@@ -17,11 +17,11 @@ var delta_time: f64 = 0.0;
 
 const glfw_log = std.log.scoped(.glfw);
 
-fn logGLFWError(error_code: glfw.ErrorCode, description: [:0]const u8) void {
+fn logGLFWError(error_code: glfw.ErrorCode, description: [*c]const u8) callconv(.c) void {
     glfw_log.err("{}: {s}\n", .{ error_code, description });
 }
 
-fn glfwSizeCallback(win: glfw.Window, width: i32, height: i32) void {
+fn glfwSizeCallback(win: *glfw.Window, width: c_int, height: c_int) callconv(.c) void {
     _ = win;
     renderer.onResize(width, height);
 }
@@ -31,7 +31,7 @@ pub const InitOptions = struct {
 
     window_width: u32 = 1280,
     window_height: u32 = 720,
-    window_title: [*:0]const u8 = "CoreX App",
+    window_title: [:0]const u8 = "CoreX App",
 
     /// Ignores `window_width` and `window_height`
     /// as it will be overwritten when the resize happens
@@ -41,21 +41,15 @@ pub const InitOptions = struct {
 
 pub fn init(options: InitOptions) !void {
     if (@import("builtin").mode == .Debug) {
-        glfw.setErrorCallback(logGLFWError);
+        _ = glfw.setErrorCallback(logGLFWError);
     }
 
     allocator = options.allocator;
 
-    if (!glfw.init(.{})) {
-        return error.GLFWerror;
-    }
+    glfw.init() catch return error.glfw_error;
 
-    window = glfw.Window.create(options.window_width, options.window_height, options.window_title, null, null, .{
-        .context_version_major = gl.info.version_major,
-        .context_version_minor = gl.info.version_minor,
-        .opengl_profile = .opengl_core_profile,
-    }) orelse return error.GLFWerror;
-    window.setSizeCallback(glfwSizeCallback);
+    window = glfw.Window.create(@intCast(options.window_width), @intCast(options.window_height), options.window_title, null) catch return error.glfw_error;
+    _ = window.setSizeCallback(glfwSizeCallback);
 
     glfw.makeContextCurrent(window);
 
@@ -63,16 +57,16 @@ pub fn init(options: InitOptions) !void {
 
     try renderer.init();
 
-    // needs to happen after renderer.init()
-    if (options.start_maximized) {
-        window.maximize();
-    }
+    // needs to happen after renderer.init() to triger a resize
+    // TODO: do this
+    // if (options.start_maximized) {}
 
-    try audio.init();
+    // TODO: uncomment
+    // try audio.init();
 }
 
 pub fn deinit() void {
-    audio.deinit();
+    // audio.deinit();
     renderer.deinit();
 
     glfw.makeContextCurrent(null);

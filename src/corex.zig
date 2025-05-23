@@ -2,7 +2,7 @@ const core = @import("core.zig");
 pub const math = @import("math.zig");
 const input = @import("input.zig");
 const renderer = @import("renderer.zig");
-const audio = @import("audio.zig");
+// const audio = @import("audio.zig");
 
 // Constants
 pub const color = struct {
@@ -65,4 +65,5 @@ pub const endUI = renderer.endUI;
 pub const drawQuad = renderer.drawQuad;
 
 // Audio
-pub const Sound = audio.Sound;
+// TODO: sound is disabled
+// pub const Sound = audio.Sound;

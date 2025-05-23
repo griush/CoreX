@@ -122,7 +122,7 @@ pub fn drawQuad(q: Quad) void {
 /////////////////////
 pub fn beginUI() void {
     const fb_size = core.window.getFramebufferSize();
-    renderer_state.view_proj = zm.Mat4f.orthographic(0.0, @floatFromInt(fb_size.width), @floatFromInt(fb_size.height), 0.0, -1.0, 1.0);
+    renderer_state.view_proj = zm.Mat4f.orthographic(0.0, @floatFromInt(fb_size[0]), @floatFromInt(fb_size[1]), 0.0, -1.0, 1.0);
 }
 
 pub fn endUI() void {
@@ -216,7 +216,7 @@ const quad_mesh = struct {
 
 fn getAspectRatio() f32 {
     const fb = core.window.getFramebufferSize();
-    return @as(f32, @floatFromInt(fb.width)) / @as(f32, @floatFromInt(fb.height));
+    return @as(f32, @floatFromInt(fb[0])) / @as(f32, @floatFromInt(fb[1]));
 }
 
 fn createShaders() !void {

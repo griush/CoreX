@@ -19,12 +19,12 @@ pub fn main() !void {
     });
     defer checkerboard.deinit();
 
-    var swan_lake = try cx.Sound.init(.{
-        .filepath = "example/assets/audio/swan_lake.mp3",
-        .loop = false,
-        .volume = 0.5,
-    });
-    defer swan_lake.deinit();
+    // var swan_lake = try cx.Sound.init(.{
+    //     .filepath = "example/assets/audio/swan_lake.mp3",
+    //     .loop = false,
+    //     .volume = 0.5,
+    // });
+    // defer swan_lake.deinit();
 
     // setup game state
     var playing = false;
@@ -67,14 +67,15 @@ pub fn main() !void {
             rotation -= 180.0 * cx.deltaTimef();
         }
         if (cx.isKeyPressed(.s)) {
+            // TODO: input: change to isKeyDown and add isKeyPressed
             if (!s_key_handled) {
                 s_key_handled = true;
                 if (playing) {
                     playing = false;
-                    try swan_lake.stop();
+                    // try swan_lake.stop();
                 } else {
                     playing = true;
-                    try swan_lake.start();
+                    // try swan_lake.start();
                 }
             }
         } else {
@@ -102,8 +103,8 @@ pub fn main() !void {
             cx.drawQuad(.{ .position = .{ 0.0, @floatCast(std.math.sin(cx.getTime())) }, .color = cx.color.red, .z_index = 1, .texture = checkerboard });
         }
 
-        cx.drawQuad(.{ .position = .{ 1.0, 0.0 }, .color = cx.color.gray });
         cx.drawQuad(.{ .position = .{ 1.0, 1.0 }, .color = cx.color.dark_gray });
+        cx.drawQuad(.{ .position = .{ 1.0, 0.0 }, .color = cx.color.gray });
         cx.drawQuad(.{ .position = .{ 1.0, -1.0 }, .color = cx.color.light_gray });
 
         cx.drawQuad(.{ .position = .{ 0.0, 2.0 }, .texture = checkerboard });

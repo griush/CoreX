@@ -1,29 +1,30 @@
 .{
-    .name = "CoreX",
+    .name = .corex,
     .version = "0.1.0",
+    .fingerprint = 0x6ad4c707e6739587,
 
-    // .minimum_zig_version = "master",
+    .minimum_zig_version = "0.15.0-dev.621+a63f7875f",
 
     .dependencies = .{
-        .@"mach-glfw" = .{
-            .url = "https://pkg.machengine.org/mach-glfw/affdd6ae6f2ac2c3b9162784bdad345c561eeeea.tar.gz",
-            .hash = "122022ea6df16700e521078c20d7d01f894c6f967e6c6ce1ea166426b4fc61667de3",
-        },
         .zigglgen = .{
-            .url = "git+https://github.com/castholm/zigglgen#1c901bef6d312ef1814b8fce3c5a9e9e8e61ac2d",
-            .hash = "12209d8a018832bee15d9da29a12fa753d89b56cd843cdf1f39501546c6467e38ba1",
+            .url = "git+https://github.com/castholm/zigglgen#d5f381759825ee0bac29bc294d47aa05be4ab7b5",
+            .hash = "zigglgen-0.4.0-bmyqLX_gLQDFXilQ5VQ9fJeOHKU1RFrggOzRqTGBX79W",
         },
         .zm = .{
-            .url = "git+https://github.com/griush/zm#50d6c83ee4bf3ae8b0ab370cfe77e700d8fdd601",
-            .hash = "12206ec8ddce3c622a8d809e1aa92d9ec2c05e88de0f85eadc98a6ed7fdad5c79b07",
+            .url = "git+https://github.com/griush/zm#3abba8c5a5b5c93e7374bffbd6740e687fb18f7d",
+            .hash = "zm-0.3.0-cLX-WQvNAADFZdfz6P8uKShdAL7gUncyKthhdtxWRieo",
         },
         .zigimg = .{
             .url = "git+https://github.com/griush/zigimg#ff8495b0d945b7655a5df99f4d6236458312ef0d",
             .hash = "122093b0307892ad5e0c60ebd70d5c39e5b3ae2dbe21e0e9d7007327954406d91515",
         },
         .zaudio = .{
-            .url = "git+https://github.com/zig-gamedev/zaudio#496da32757767b31f389554e1e5c668796755fe2",
-            .hash = "12203f6ab72861cd7e36ebd1590f9cc7fd036366e2ff96122002a395f628e813d999",
+            .url = "git+https://github.com/zig-gamedev/zaudio#1012b105627e28827f558b79e533575ef65a4965",
+            .hash = "zaudio-0.11.0-dev-_M-91mJkPwB7NWGKgDvdpl3xyjkk301Tp6ubbsleUvVK",
+        },
+        .zglfw = .{
+            .url = "git+https://github.com/zig-gamedev/zglfw#c337cb3d3f984468ea7a386335937a5d555fc024",
+            .hash = "zglfw-0.10.0-dev-zgVDNMacIQA-k7kNSfwUc9Lfzx-bb_wklVm25K-p8Tr7",
         },
     },
 
